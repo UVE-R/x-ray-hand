@@ -9,6 +9,7 @@ from skimage import img_as_ubyte
 from torch.utils.data import Dataset
 from imgaug.augmentables import Keypoint
 from imgaug.augmentables import KeypointsOnImage
+from pathlib import Path
 
 import numpy as np
 import imgaug.augmenters as iaa
@@ -61,7 +62,8 @@ class LandmarkDataset(Dataset):
             os.makedirs(cache_data_dir)
 
         # get the file names of all images in the directory
-        image_paths = sorted(glob.glob(images_dir + "/*" + cfg_dataset.IMAGE_EXT))
+        path = Path(images_dir)
+        image_paths = sorted([str(f.as_posix()) for f in sorted(path.glob("*"))])
 
         no_of_image_paths = len(image_paths)
         if subset == "first half":
@@ -75,7 +77,9 @@ class LandmarkDataset(Dataset):
             file_name = os.path.basename(image_path).split(".")[0]
 
             # Get sub-directories for annotations
-            annotation_sub_dirs = sorted(glob.glob(annotation_dir + "/*"))
+            
+            path = Path(annotation_dir)
+            annotation_sub_dirs = sorted([str(f.as_posix()) for f in sorted(path.glob("*"))]) 
 
             # Keep track of where we will be saving the downsampled image and the meta data
             cache_image_path = os.path.join(cache_data_dir, file_name + ".png")
@@ -86,7 +90,9 @@ class LandmarkDataset(Dataset):
             for annotation_sub_dir in annotation_sub_dirs:
                 annotation_paths.append(os.path.join(annotation_sub_dir, file_name + ".txt"))
                 sub_dir_name = annotation_sub_dir.split("/")[-1]
-                cache_annotation_paths.append(os.path.join(cache_data_dir, file_name + "_" + sub_dir_name + ".txt"))
+
+                path = Path(cache_data_dir) / f"{file_name}_{sub_dir_name}.txt"
+                cache_annotation_paths.append(path.as_posix())
 
             db.append({
                 "cached_image_path": cache_image_path,
@@ -126,6 +132,7 @@ class LandmarkDataset(Dataset):
 
                     # Save annotations
                     kps_np_array = kps_resized.to_xy_array()
+
                     np.savetxt(cache_annotation_path, kps_np_array, fmt="%.14g", delimiter=" ")
 
                 # -----------Meta Data-----------
@@ -147,6 +154,7 @@ class LandmarkDataset(Dataset):
                 with open(cache_meta_path, 'w') as file:
                     file.write(json.dumps(meta_dict))
 
+
         return db
 
     def __len__(self):
@@ -164,7 +172,7 @@ class LandmarkDataset(Dataset):
         # Use pandas to extract the key points from the txt file
         landmarks_per_annotator = []
 
-        for cached_annotation_path in cached_annotation_paths:
+        for cached_annotation_path in cached_annotation_paths:            
             kps_np_array = np.loadtxt(cached_annotation_path, delimiter=" ")
             landmarks_per_annotator.append(kps_np_array)
 

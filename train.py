@@ -9,7 +9,8 @@ from model import two_d_softmax
 from model import nll_across_batch
 from landmark_dataset import LandmarkDataset
 from utils import prepare_config_output_and_logger
-from torchsummary.torchsummary import summary_string
+
+#from torchsummary import summary_string
 
 
 '''
@@ -26,6 +27,7 @@ def parse_args():
                         required=True,
                         type=str)
 
+    
     parser.add_argument('--training_images',
                         help='The path to the training images',
                         type=str,
@@ -37,7 +39,7 @@ def parse_args():
                         type=str,
                         required=True,
                         default='')
-
+    
     args = parser.parse_args()
 
     return args
@@ -59,9 +61,7 @@ def main():
     logger.info(cfg)
     logger.info("")
 
-    # load the train dataset and put it into a loader
-    training_dataset = LandmarkDataset(args.training_images, args.annotations, cfg.DATASET, perform_augmentation=True)
-    training_loader = torch.utils.data.DataLoader(training_dataset, batch_size=cfg.TRAIN.BATCH_SIZE, shuffle=True)
+
 
     '''
     for batch, (image, channels, meta) in enumerate(train_loader):
@@ -78,13 +78,30 @@ def main():
     '''
 
     model = eval("model." + cfg.MODEL.NAME)(cfg.MODEL, cfg.DATASET.KEY_POINTS).cuda()
+    print(model)
 
-    logger.info("-----------Model Summary-----------")
-    model_summary, _ = summary_string(model, (1, *cfg.DATASET.CACHED_IMAGE_SIZE))
-    logger.info(model_summary)
+    #logger.info("-----------Model Summary-----------")
+    #model_summary, _ = summary_string(model, (1, *cfg.DATASET.CACHED_IMAGE_SIZE))
+    #logger.info(model_summary)
 
     optimizer = torch.optim.Adam(model.parameters(), lr=cfg.TRAIN.LR)
     scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[4, 6, 8], gamma=0.1)
+
+    if torch.cuda.is_available():
+        print("CUDA is available! PyTorch can use the GPU.")
+        # Get the number of GPUs available
+        num_gpus = torch.cuda.device_count()
+        print(f"Number of GPUs available: {num_gpus}")
+        # Print details for each GPU
+        for i in range(num_gpus):
+            gpu_name = torch.cuda.get_device_name(i)
+            print(f"GPU {i}: {gpu_name}")
+    else:
+        print("CUDA is not available. PyTorch cannot use the GPU.")
+
+    # load the train dataset and put it into a loader
+    training_dataset = LandmarkDataset(args.training_images, args.annotations, cfg.DATASET, perform_augmentation=True)
+    training_loader = torch.utils.data.DataLoader(training_dataset, batch_size=cfg.TRAIN.BATCH_SIZE, shuffle=True)
 
     for epoch in range(cfg.TRAIN.EPOCHS):
 
