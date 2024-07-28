@@ -79,7 +79,7 @@ class LandmarkDataset(Dataset):
             # Get sub-directories for annotations
             
             path = Path(annotation_dir)
-            annotation_sub_dirs = sorted([str(f.as_posix()) for f in sorted(path.glob("*"))]) 
+            annotation_sub_dirs = sorted([str(f.as_posix()) for f in sorted(path.glob("*")) if not f.name.startswith('.')]) 
 
             # Keep track of where we will be saving the downsampled image and the meta data
             cache_image_path = os.path.join(cache_data_dir, file_name + ".png")
