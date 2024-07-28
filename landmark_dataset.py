@@ -9,7 +9,7 @@ from skimage import img_as_ubyte
 from torch.utils.data import Dataset
 from imgaug.augmentables import Keypoint
 from imgaug.augmentables import KeypointsOnImage
-from pathlib import Path
+from pathlib import Path, PosixPath
 
 import numpy as np
 import imgaug.augmenters as iaa
@@ -88,7 +88,9 @@ class LandmarkDataset(Dataset):
 
             annotation_paths = []
             for annotation_sub_dir in annotation_sub_dirs:
-                annotation_paths.append(os.path.join(annotation_sub_dir, file_name + ".txt"))
+
+                annotation_paths.append(Path(annotation_sub_dir) / (file_name + ".txt"))
+
                 sub_dir_name = annotation_sub_dir.split("/")[-1]
 
                 path = Path(cache_data_dir) / f"{file_name}_{sub_dir_name}.txt"
