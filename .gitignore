@@ -169,3 +169,5 @@ cephalometric_data_directory/
 Digital_Hand_Atlas/ 
 
 .vscode/
+
+output/

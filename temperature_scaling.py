@@ -11,7 +11,7 @@ from evaluate import evaluate
 from plots import reliability_diagram
 from landmark_dataset import LandmarkDataset
 from utils import prepare_config_output_and_logger
-from torchsummary.torchsummary import summary_string
+#from torchsummary.torchsummary import summary_string
 
 
 def parse_args():
@@ -74,9 +74,9 @@ def main():
     loaded_state_dict = torch.load(args.pretrained_model)
     model.load_state_dict(loaded_state_dict, strict=True)
 
-    logger.info("-----------Model Summary-----------")
-    model_summary, _ = summary_string(model, (1, *cfg.DATASET.CACHED_IMAGE_SIZE))
-    logger.info(model_summary)
+    #logger.info("-----------Model Summary-----------")
+    #model_summary, _ = summary_string(model, (1, *cfg.DATASET.CACHED_IMAGE_SIZE))
+    #logger.info(model_summary)
 
     model.temperatures.requires_grad = True
     optimizer = torch.optim.Adam([model.temperatures], lr=0.01)
