@@ -4,4 +4,4 @@ scikit-learn>=1.0.1
 imgaug>=0.4.0
 yacs>=0.1.8
 segmentation-models-pytorch>=0.2.0
-
+torchsummary
