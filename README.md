@@ -1,4 +1,4 @@
-# Hand X-Rays
+# Contour Hugging Heatmaps Clone
 
 **Original Code: https://github.com/jfm15/ContourHuggingHeatmaps/tree/main**
 
